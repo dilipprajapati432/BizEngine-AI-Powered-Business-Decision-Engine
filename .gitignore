@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.env
+instance/
+uploads/
+*.db
+
+# Node
+node_modules/
+dist/
+.vercel/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp/Test
+out.json
+test.py
+test2.py

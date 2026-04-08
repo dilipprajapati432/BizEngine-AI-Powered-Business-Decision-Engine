@@ -1,0 +1,12 @@
+flask
+python-dotenv
+flask-cors
+pandas
+numpy
+scikit-learn
+werkzeug
+openpyxl
+gunicorn
+groq
+google-generativeai
+reportlab
