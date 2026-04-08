@@ -24,6 +24,10 @@ def create_app():
 
     # ── Configuration ───────────────────────────────────────────────────────────
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB
+    app.config.update(
+        SESSION_COOKIE_SAMESITE="None",
+        SESSION_COOKIE_SECURE=True,
+    )
 
     # ── Extensions ──────────────────────────────────────────────────────────────
     frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173").rstrip('/')
