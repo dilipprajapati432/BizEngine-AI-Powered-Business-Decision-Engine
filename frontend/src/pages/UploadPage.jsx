@@ -35,7 +35,7 @@ export default function UploadPage() {
     }, 150);
 
     try {
-      const res = await api.post('/upload', form, {
+      const res = await api.post('upload', form, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent) => {
           // If real progress is slower than simulation, we could use it, 

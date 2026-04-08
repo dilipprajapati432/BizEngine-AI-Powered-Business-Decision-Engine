@@ -73,7 +73,8 @@ export default function SplashScreen({ onComplete }) {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
           <h1 style={{ 
             fontSize: '1.5rem', fontWeight: 800, color: '#fff', 
-            letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 
+            letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0,
+            textAlign: 'center'
           }}>
             BizEngine
           </h1>
@@ -81,7 +82,8 @@ export default function SplashScreen({ onComplete }) {
             fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600,
             textTransform: 'uppercase', letterSpacing: '0.2em',
             animation: 'textScan 0.3s ease-out',
-            fontFamily: 'monospace'
+            fontFamily: 'monospace', textAlign: 'center',
+            padding: '0 1rem'
           }}>
             {STATUS_MESSAGES[currentMessageIndex]}
           </div>

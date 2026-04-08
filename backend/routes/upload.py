@@ -44,6 +44,9 @@ def upload_file():
         if len(df) == 0:
             return jsonify({"error": "The uploaded file is empty."}), 400
 
+        # Pre-clean to normalize columns and handle synonyms (e.g., 'Amount' -> 'revenue')
+        df = clean_dataframe(df)
+
         # We need at least these to generate meaningful analytics
         required_cols = {"date", "product", "revenue"}
         missing = required_cols - set(df.columns)
@@ -52,8 +55,6 @@ def upload_file():
                 "error": f"Missing critical business columns: {', '.join(missing)}.",
                 "suggestion": "Ensure your file contains 'Date', 'Product', and 'Revenue' (case-insensitive)."
             }), 400
-
-        df = clean_dataframe(df)
 
         # ── Session & Memory Storage ────────────────────────────────────────────
         if "uid" not in session:

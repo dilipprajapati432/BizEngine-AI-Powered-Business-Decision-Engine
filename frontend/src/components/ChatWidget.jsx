@@ -69,7 +69,7 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
-      const res = await api.post('/chat', { message: msg });
+      const res = await api.post('chat', { message: msg });
       setMessages(prev => [...prev, { role: 'bot', text: res.data.reply }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: 'bot', text: 'Sorry, something went wrong. Please try again.' }]);
@@ -105,51 +105,76 @@ export default function ChatWidget() {
         <MessageCircle size={24} color="#fff" />
       </button>
 
+      {/* Style overrides for responsiveness */}
+      <style>{`
+        @keyframes chatSlideUp {
+          from { opacity: 0; transform: translateY(20px) scale(0.95); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes chatSlideDown {
+          from { opacity: 1; transform: translateY(0) scale(1); }
+          to { opacity: 0; transform: translateY(20px) scale(0.95); }
+        }
+        @keyframes msgFadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+          0%, 100% { box-shadow: 0 4px 24px rgba(99,102,241,0.4); }
+          50% { box-shadow: 0 4px 32px rgba(99,102,241,0.7); }
+        }
+        @keyframes dotBounce {
+          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+          40% { transform: scale(1); opacity: 1; }
+        }
+        .chat-msg { animation: msgFadeIn 0.3s ease-out both; }
+        .chat-input:focus { outline: none; border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important; }
+        .chat-suggestion { transition: all 0.2s ease !important; }
+        .chat-suggestion:hover { background: rgba(99,102,241,0.15) !important; border-color: var(--accent) !important; transform: translateY(-1px); }
+        .chat-close:hover { background: rgba(255,255,255,0.15) !important; }
+        .chat-send:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 2px 12px rgba(99,102,241,0.4); }
+        .chat-fab { animation: pulse 3s ease-in-out infinite; }
+        .chat-fab:hover { transform: scale(1.1) !important; }
+        .chat-scrollbar::-webkit-scrollbar { width: 4px; }
+        .chat-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .chat-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .chat-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        
+        .chat-panel {
+          width: 400px;
+          height: 520px;
+          bottom: 5.5rem;
+          right: 1.5rem;
+          border-radius: 16px;
+        }
+
+        @media (max-width: 640px) {
+          .chat-panel {
+            width: 340px;
+            max-width: 90vw;
+            height: 52vh;
+            right: 1.25rem;
+            left: auto;
+            bottom: 9.5rem;
+          }
+          .chat-fab {
+            right: 1.25rem !important;
+            bottom: 5.5rem !important;
+            transform: scale(0.9) !important;
+          }
+        }
+      `}</style>
+
       {/* Chat Panel */}
       {open && (
-        <div style={{
-          position: 'fixed', bottom: '5.5rem', right: '1.5rem', zIndex: 999,
-          width: 400, height: 520, borderRadius: '16px',
+        <div className="chat-panel" style={{
+          position: 'fixed', zIndex: 999,
           background: 'var(--bg-chat)', border: '1px solid var(--border)',
           backdropFilter: 'blur(24px)',
           boxShadow: '0 8px 40px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05)',
           display: 'flex', flexDirection: 'column', overflow: 'hidden',
           animation: closing ? 'chatSlideDown 0.25s ease-in forwards' : 'chatSlideUp 0.3s ease-out'
         }}>
-          <style>{`
-            @keyframes chatSlideUp {
-              from { opacity: 0; transform: translateY(20px) scale(0.95); }
-              to { opacity: 1; transform: translateY(0) scale(1); }
-            }
-            @keyframes chatSlideDown {
-              from { opacity: 1; transform: translateY(0) scale(1); }
-              to { opacity: 0; transform: translateY(20px) scale(0.95); }
-            }
-            @keyframes msgFadeIn {
-              from { opacity: 0; transform: translateY(8px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes pulse {
-              0%, 100% { box-shadow: 0 4px 24px rgba(99,102,241,0.4); }
-              50% { box-shadow: 0 4px 32px rgba(99,102,241,0.7); }
-            }
-            @keyframes dotBounce {
-              0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-              40% { transform: scale(1); opacity: 1; }
-            }
-            .chat-msg { animation: msgFadeIn 0.3s ease-out both; }
-            .chat-input:focus { outline: none; border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important; }
-            .chat-suggestion { transition: all 0.2s ease !important; }
-            .chat-suggestion:hover { background: rgba(99,102,241,0.15) !important; border-color: var(--accent) !important; transform: translateY(-1px); }
-            .chat-close:hover { background: rgba(255,255,255,0.15) !important; }
-            .chat-send:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 2px 12px rgba(99,102,241,0.4); }
-            .chat-fab { animation: pulse 3s ease-in-out infinite; }
-            .chat-fab:hover { transform: scale(1.1) !important; }
-            .chat-scrollbar::-webkit-scrollbar { width: 4px; }
-            .chat-scrollbar::-webkit-scrollbar-track { background: transparent; }
-            .chat-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-            .chat-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-          `}</style>
 
           {/* Header */}
           <div style={{

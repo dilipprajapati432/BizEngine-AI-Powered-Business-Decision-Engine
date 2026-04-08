@@ -79,7 +79,7 @@ export default function InsightsPage() {
   const fetchInsights = async () => {
     setLoading(true); setError('');
     try {
-      const res = await api.get('/insights');
+      const res = await api.get('insights');
       setData(res.data);
     } catch (err) {
       setError(err.response?.data?.error || 'Could not load insights.');

@@ -99,7 +99,6 @@ export default function AppLayout() {
             padding-left: 1.25rem !important;
             padding-right: 1.25rem !important;
           }
-          .chat-fab { bottom: 6rem !important; right: 1rem !important; transform: scale(0.9) !important; }
         }
         @media (min-width: 769px) {
           .mobile-header { display: none !important; }

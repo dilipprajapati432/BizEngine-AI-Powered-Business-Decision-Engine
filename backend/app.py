@@ -26,8 +26,13 @@ def create_app():
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB
 
     # ── Extensions ──────────────────────────────────────────────────────────────
-    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173")
-    CORS(app, origins=[frontend_url], supports_credentials=True)
+    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173").rstrip('/')
+    origins = [frontend_url]
+    if "vercel.app" in frontend_url and "www." not in frontend_url:
+        # Automatically allow the 'www' variant of the Vercel URL
+        origins.append(frontend_url.replace("https://", "https://www."))
+    
+    CORS(app, origins=origins, supports_credentials=True)
 
     # ── Blueprints ──────────────────────────────────────────────────────────────
     app.register_blueprint(upload_bp, url_prefix="/api")
@@ -55,4 +60,4 @@ app = create_app()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host="0.0.0.0", port=port)
+    app.run(debug=True, host="0.0.0.0", port=port)

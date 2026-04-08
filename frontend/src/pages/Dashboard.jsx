@@ -110,7 +110,7 @@ export default function Dashboard() {
     setLoading(true); setError('');
     try {
       const params = Object.fromEntries(Object.entries(f).filter(([, v]) => v));
-      const res = await api.get('/analytics', { params });
+      const res = await api.get('analytics', { params });
       setData(res.data);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load analytics.');
