@@ -30,13 +30,14 @@ def create_app():
     )
 
     # ── Extensions ──────────────────────────────────────────────────────────────
+    # ── Extensions ──────────────────────────────────────────────────────────────
     frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173").rstrip('/')
-    origins = [frontend_url]
+    origins = [frontend_url, "http://localhost:5173", "http://127.0.0.1:5173"]
     if "vercel.app" in frontend_url and "www." not in frontend_url:
         # Automatically allow the 'www' variant of the Vercel URL
         origins.append(frontend_url.replace("https://", "https://www."))
     
-    CORS(app, origins=origins, supports_credentials=True)
+    CORS(app, origins=origins, supports_credentials=True, methods=["GET", "POST", "OPTIONS"])
 
     # ── Blueprints ──────────────────────────────────────────────────────────────
     app.register_blueprint(upload_bp, url_prefix="/api")
