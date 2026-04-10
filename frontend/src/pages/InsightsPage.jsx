@@ -88,12 +88,28 @@ export default function InsightsPage() {
 
   useEffect(() => { fetchInsights(); }, []);
 
+  const downloadFile = async (endpoint, filename) => {
+    try {
+      const response = await api.get(endpoint, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (err) {
+      console.error("Export failed:", err);
+      alert("Failed to export report. Please try again.");
+    }
+  };
+
   const handleExportReport = () => {
-    window.open(`${api.defaults.baseURL}/export/report`, '_blank');
+    downloadFile('export/report', 'BizEngine_Intelligence_Report.csv');
   };
 
   const handleExportPDF = () => {
-    window.open(`${api.defaults.baseURL}/export/pdf`, '_blank');
+    downloadFile('export/pdf', 'BizEngine_Intelligence_Report.pdf');
   };
 
   if (loading) return (

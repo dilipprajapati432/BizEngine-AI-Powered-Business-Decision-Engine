@@ -12,23 +12,10 @@ def get_session_df():
         return None
     return store.get_data(uid)
 
-@insights_bp.route("/insights", methods=["GET"])
-def insights():
-    """
-    Main AI Intelligence endpoint. 
-    1. Performs statistical forensics (Percentage contributions, top/bottom performers).
-    2. Generates a multi-period revenue forecast via ML.
-    3. Narrates findings using a LLM (Groq/Gemini), pairing every insight with a 
-       specific data-backed recommendation.
-    """
-    df = get_session_df()
-
-    if df is None:
-        return jsonify({"error": "No data available."}), 404
-
+def build_insights_for_df(df):
     warnings = []
-    total_revenue = df["revenue"].sum()
-    total_units = df["units_sold"].sum()
+    total_revenue = float(df["revenue"].sum())
+    total_units = int(df["units_sold"].sum())
 
     # ── Percentage Contributions ────────────────────────────────────────────
     contributions = {}
@@ -37,15 +24,15 @@ def insights():
     has_product = "product" in df.columns and df["product"].nunique() > 1
     if has_product:
         product_rev = df.groupby("product")["revenue"].sum().sort_values(ascending=False)
-        top_prod = product_rev.index[0]
-        top_prod_val = product_rev.iloc[0]
-        top_prod_pct = round((top_prod_val / total_revenue) * 100, 1) if total_revenue > 0 else 0
-        bottom_prod = product_rev.index[-1]
-        bottom_prod_val = product_rev.iloc[-1]
-        bottom_prod_pct = round((bottom_prod_val / total_revenue) * 100, 1) if total_revenue > 0 else 0
+        top_prod = str(product_rev.index[0])
+        top_prod_val = float(product_rev.iloc[0])
+        top_prod_pct = float(round((top_prod_val / total_revenue) * 100, 1)) if total_revenue > 0 else 0.0
+        bottom_prod = str(product_rev.index[-1])
+        bottom_prod_val = float(product_rev.iloc[-1])
+        bottom_prod_pct = float(round((bottom_prod_val / total_revenue) * 100, 1)) if total_revenue > 0 else 0.0
         weak = product_rev[product_rev < product_rev.mean() * 0.5]
-        contributions["top_product"] = {"name": top_prod, "pct": top_prod_pct, "revenue": round(top_prod_val, 2)}
-        contributions["bottom_product"] = {"name": bottom_prod, "pct": bottom_prod_pct, "revenue": round(bottom_prod_val, 2)}
+        contributions["top_product"] = {"name": top_prod, "pct": top_prod_pct, "revenue": float(round(top_prod_val, 2))}
+        contributions["bottom_product"] = {"name": bottom_prod, "pct": bottom_prod_pct, "revenue": float(round(bottom_prod_val, 2))}
     elif "product" in df.columns:
         warnings.append("Only 1 product in dataset — product comparison not available.")
         has_product = False
@@ -56,14 +43,14 @@ def insights():
     has_region = "region" in df.columns and df["region"].nunique() > 1
     if has_region:
         region_rev = df.groupby("region")["revenue"].sum().sort_values(ascending=False)
-        top_region = region_rev.index[0]
-        top_region_val = region_rev.iloc[0]
-        top_region_pct = round((top_region_val / total_revenue) * 100, 1) if total_revenue > 0 else 0
-        low_region = region_rev.index[-1]
-        low_region_val = region_rev.iloc[-1]
-        low_region_pct = round((low_region_val / total_revenue) * 100, 1) if total_revenue > 0 else 0
-        contributions["top_region"] = {"name": top_region, "pct": top_region_pct, "revenue": round(top_region_val, 2)}
-        contributions["bottom_region"] = {"name": low_region, "pct": low_region_pct, "revenue": round(low_region_val, 2)}
+        top_region = str(region_rev.index[0])
+        top_region_val = float(region_rev.iloc[0])
+        top_region_pct = float(round((top_region_val / total_revenue) * 100, 1)) if total_revenue > 0 else 0.0
+        low_region = str(region_rev.index[-1])
+        low_region_val = float(region_rev.iloc[-1])
+        low_region_pct = float(round((low_region_val / total_revenue) * 100, 1)) if total_revenue > 0 else 0.0
+        contributions["top_region"] = {"name": top_region, "pct": top_region_pct, "revenue": float(round(top_region_val, 2))}
+        contributions["bottom_region"] = {"name": low_region, "pct": low_region_pct, "revenue": float(round(low_region_val, 2))}
     elif "region" in df.columns:
         warnings.append("Only 1 region in dataset — regional comparison not available.")
         has_region = False
@@ -74,10 +61,10 @@ def insights():
     has_category = "category" in df.columns and df["category"].nunique() > 1
     if has_category:
         cat_rev = df.groupby("category")["revenue"].sum().sort_values(ascending=False)
-        top_cat = cat_rev.index[0]
-        top_cat_val = cat_rev.iloc[0]
-        top_cat_pct = round((top_cat_val / total_revenue) * 100, 1) if total_revenue > 0 else 0
-        contributions["top_category"] = {"name": top_cat, "pct": top_cat_pct, "revenue": round(top_cat_val, 2)}
+        top_cat = str(cat_rev.index[0])
+        top_cat_val = float(cat_rev.iloc[0])
+        top_cat_pct = float(round((top_cat_val / total_revenue) * 100, 1)) if total_revenue > 0 else 0.0
+        contributions["top_category"] = {"name": top_cat, "pct": top_cat_pct, "revenue": float(round(top_cat_val, 2))}
     elif "category" in df.columns:
         warnings.append("Only 1 category — category analysis not available.")
     else:
@@ -91,9 +78,9 @@ def insights():
     if has_dates:
         monthly = df_sorted.groupby(df_sorted["date"].dt.to_period("M"))["revenue"].sum()
         if len(monthly) >= 2:
-            prev, curr = monthly.iloc[-2], monthly.iloc[-1]
+            prev, curr = float(monthly.iloc[-2]), float(monthly.iloc[-1])
             if prev > 0:
-                pct = round(((curr - prev) / prev) * 100, 1)
+                pct = float(round(((curr - prev) / prev) * 100, 1))
                 direction = "growth" if pct >= 0 else "decline"
         else:
             warnings.append("Only 1 month of data — trend analysis not available.")
@@ -183,12 +170,32 @@ def insights():
     # ── ML Forecast (Always Runs) ──────────────────────────────────────────
     forecast, forecast_meta = generate_forecast(df)
 
-    return jsonify(
-        {
-            "paired_insights": paired_insights,
-            "contributions": contributions,
-            "warnings": warnings,
-            "forecast": forecast,
-            "forecast_meta": forecast_meta,
-        }
-    ), 200
+    return {
+        "paired_insights": paired_insights,
+        "contributions": contributions,
+        "warnings": warnings,
+        "forecast": forecast,
+        "forecast_meta": forecast_meta,
+    }
+
+
+@insights_bp.route("/insights", methods=["GET"])
+def insights():
+    """
+    Main AI Intelligence endpoint. 
+    1. Performs statistical forensics (Percentage contributions, top/bottom performers).
+    2. Generates a multi-period revenue forecast via ML.
+    3. Narrates findings using a LLM (Groq/Gemini), pairing every insight with a 
+       specific data-backed recommendation.
+    """
+    try:
+        df = get_session_df()
+
+        if df is None:
+            return jsonify({"error": "No data available."}), 404
+
+        data = build_insights_for_df(df)
+        return jsonify(data), 200
+    except Exception as e:
+        import traceback
+        return jsonify({"error": f"Internal Server Error: {str(e)}", "traceback": traceback.format_exc()}), 400

@@ -64,7 +64,7 @@ def generate_forecast(df: pd.DataFrame, periods: int = 6):
         "model": "Linear Regression (sklearn)",
         "basis": "Historical monthly revenue aggregates",
         "data_points": int(len(monthly)),
-        "r_squared": round(r2, 3),
+        "r_squared": float(round(r2, 3)),
         "confidence": confidence,
     }
 
@@ -77,25 +77,25 @@ def generate_forecast(df: pd.DataFrame, periods: int = 6):
     for _, row in monthly.iterrows():
         forecast.append({
             "month": str(row["period"]),
-            "actual": round(row["revenue"], 2),
+            "actual": float(round(row["revenue"], 2)),
             "predicted": None
         })
 
     # Connect the lines so discrete segments join elegantly
     if not monthly.empty:
         last_val = monthly.iloc[-1]["revenue"]
-        forecast[-1]["predicted"] = round(last_val, 2)
+        forecast[-1]["predicted"] = float(round(last_val, 2))
 
     for i in range(1, periods + 1):
         future_t = last_t + i
         future_period = last_period + i
         predicted_revenue = float(model.predict([[future_t]])[0])
-        predicted_revenue = max(0, predicted_revenue)  # clamp to non-negative
+        predicted_revenue = max(0.0, float(predicted_revenue))  # clamp to non-negative
         forecast.append(
             {
                 "month": str(future_period),
                 "actual": None,
-                "predicted": round(predicted_revenue, 2),
+                "predicted": float(round(predicted_revenue, 2)),
             }
         )
 

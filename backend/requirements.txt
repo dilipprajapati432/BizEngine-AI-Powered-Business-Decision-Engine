@@ -10,3 +10,4 @@ gunicorn
 groq
 google-generativeai
 reportlab
+flask-limiter==4.1.1

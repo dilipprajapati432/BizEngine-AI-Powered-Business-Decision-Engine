@@ -40,20 +40,16 @@ def _get_report_data():
     else:
         growth = 0
 
-    # Get AI insights
+    # Get comprehensive insights (matches UI exactly)
     try:
-        from services.llm_service import generate_ai_insights
-        summary = (
-            f"- Total Revenue: ${total_revenue:,.2f}\n"
-            f"- Total Units: {total_units:,}\n"
-            f"- Growth Rate: {growth}%"
-        )
-        ai_result = generate_ai_insights(summary)
-        insight_rows = ai_result.get("paired_insights", []) if ai_result else []
-    except Exception:
+        from routes.insights import build_insights_for_df
+        insights_pkg = build_insights_for_df(df)
+        insight_rows = insights_pkg.get("paired_insights", [])
+    except Exception as e:
+        print(f"Export insight generation failed: {e}")
         insight_rows = []
 
-    # Top products
+    # Top products (fallback simple calculation for PDF summary table if needed)
     top_products = []
     if "product" in df.columns:
         prod_rev = df.groupby("product")["revenue"].sum().sort_values(ascending=False).head(5)
