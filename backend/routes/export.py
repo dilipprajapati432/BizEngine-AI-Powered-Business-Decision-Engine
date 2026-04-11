@@ -43,7 +43,10 @@ def _get_report_data():
     # Get comprehensive insights (matches UI exactly)
     try:
         from routes.insights import build_insights_for_df
-        insights_pkg = build_insights_for_df(df)
+        insights_pkg = store.get_insights(uid)
+        if not insights_pkg:
+            insights_pkg = build_insights_for_df(df)
+            store.save_insights(uid, insights_pkg)
         insight_rows = insights_pkg.get("paired_insights", [])
     except Exception as e:
         print(f"Export insight generation failed: {e}")

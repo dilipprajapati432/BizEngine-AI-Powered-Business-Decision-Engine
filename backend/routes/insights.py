@@ -189,12 +189,20 @@ def insights():
        specific data-backed recommendation.
     """
     try:
+        uid = session.get("uid")
         df = get_session_df()
 
         if df is None:
             return jsonify({"error": "No data available."}), 404
 
+        cached_insights = store.get_insights(uid) if uid else None
+        if cached_insights:
+            return jsonify(cached_insights), 200
+
         data = build_insights_for_df(df)
+        if uid:
+            store.save_insights(uid, data)
+            
         return jsonify(data), 200
     except Exception as e:
         import traceback
